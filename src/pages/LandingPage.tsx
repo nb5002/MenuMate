@@ -1,9 +1,11 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { theme } from "../theme";
 import logo from "../assets/logo.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const tableFromQr = searchParams.get("table");
 
   return (
     <div
@@ -18,7 +20,7 @@ export default function LandingPage() {
         boxSizing: "border-box",
       }}
     >
-      <div /> {/* spacer to help vertical centering */}
+      <div />
 
       <div style={{ textAlign: "center" }}>
         <img
@@ -57,7 +59,7 @@ export default function LandingPage() {
       </div>
 
       <button
-        onClick={() => navigate("/order-type")}
+        onClick={() => navigate("/order-type", { state: { tableNumber: tableFromQr } })}
         style={{
           width: "100%",
           maxWidth: 360,
