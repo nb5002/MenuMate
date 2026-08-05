@@ -10,12 +10,14 @@ import AdminOrderHistoryPage from "./pages/AdminOrderHistoryPage";
 import AdminQrCodePage from "./pages/AdminQrCodePage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
+import OrderTypePage from "./pages/OrderTypePage";
 
 function App() {
   return (
     <Routes>
       {/* Public customer routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/order-type" element={<OrderTypePage />} />
       <Route path="/menu" element={<CustomerMenuPage />} />
       <Route path="/menu/:id" element={<ItemDetailsPage />} />
       <Route path="/order" element={<CustomerOrderPage />} />

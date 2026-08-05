@@ -57,7 +57,7 @@ export default function LandingPage() {
       </div>
 
       <button
-        onClick={() => navigate("/menu")}
+        onClick={() => navigate("/order-type")}
         style={{
           width: "100%",
           maxWidth: 360,

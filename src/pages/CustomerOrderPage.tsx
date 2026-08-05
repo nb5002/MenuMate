@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getAllMenuItems } from "../api/menuApi";
 import { createOrder } from "../api/ordersApi";
 import type { MenuItem } from "../types";
@@ -10,11 +10,15 @@ export default function CustomerOrderPage() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [customerName, setCustomerName] = useState("");
-  const [tableNumber, setTableNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const orderType: "dine_in" | "takeout" = location.state?.orderType || "dine_in";
+  const tableFromQr = location.state?.tableNumber || "";
+  const [tableNumber, setTableNumber] = useState(tableFromQr);
 
   useEffect(() => {
     async function fetchMenu() {
@@ -31,8 +35,13 @@ export default function CustomerOrderPage() {
   const handleSubmit = async () => {
     setMessage("");
 
-    if (!customerName.trim() || !tableNumber.trim()) {
-      setMessage("Please fill in your name and table number.");
+    if (!customerName.trim()) {
+      setMessage("Please fill in your name.");
+      return;
+    }
+
+    if (orderType === "dine_in" && !tableNumber.trim()) {
+      setMessage("Please fill in your table number.");
       return;
     }
 
@@ -52,7 +61,8 @@ export default function CustomerOrderPage() {
     try {
       const response = await createOrder({
         customerName,
-        tableNumber: Number(tableNumber),
+        orderType,
+        tableNumber: orderType === "dine_in" ? Number(tableNumber) : null,
         items,
       });
       navigate(`/order-confirmation/${response.data.orderId}`);
@@ -77,9 +87,17 @@ export default function CustomerOrderPage() {
           <div style={{ flex: "1 1 220px" }}>
             <Input placeholder="Your Name" value={customerName} onChange={setCustomerName} />
           </div>
-          <div style={{ flex: "1 1 120px" }}>
-            <Input placeholder="Table #" type="number" value={tableNumber} onChange={setTableNumber} />
-          </div>
+          {orderType === "dine_in" && (
+            <div style={{ flex: "1 1 120px" }}>
+              <Input
+                placeholder="Table #"
+                type="number"
+                value={tableNumber}
+                onChange={setTableNumber}
+                style={tableFromQr ? { opacity: 0.7, pointerEvents: "none" } : undefined}
+              />
+            </div>
+          )}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
@@ -118,4 +136,4 @@ export default function CustomerOrderPage() {
       </div>
     </PageShell>
   );
-}
+} 

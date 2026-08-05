@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { getAllMenuItems } from "../api/menuApi";
 import type { MenuItem } from "../types";
 import { theme } from "../theme";
@@ -33,7 +33,16 @@ export default function CustomerMenuPage() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const orderType = location.state?.orderType || "dine_in";
 
+  const [searchParams] = useSearchParams();
+  const tableFromQr = searchParams.get("table");
+
+  // If a table number is in the URL, this is a QR scan — treat as dine-in automatically
+  const finalOrderType = tableFromQr ? "dine_in" : orderType;
+  const finalTableNumber = tableFromQr || "";
+ 
   useEffect(() => {
     async function fetchMenu() {
       try {
@@ -89,7 +98,13 @@ export default function CustomerMenuPage() {
             >
               ☰ Categories
             </button>
-            <Button onClick={() => navigate("/order")}>Order Form →</Button>
+            <Button onClick={() => 
+              navigate("/order", { 
+                state: { orderType: finalOrderType, tableNumber: finalTableNumber  } 
+                })
+                }>
+                  Order Form →
+             </Button>
           </div>
         }
       />

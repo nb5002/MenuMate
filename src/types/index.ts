@@ -26,9 +26,12 @@ export interface OrderItemRequest {
   quantity: number;
 }
 
+export type OrderType = "dine_in" | "takeout";
+
 export interface CreateOrderRequest {
   customerName: string;
-  tableNumber: number;
+  orderType: OrderType;
+  tableNumber: number | null;
   items: OrderItemRequest[];
 }
 
@@ -46,7 +49,8 @@ export interface OrderItem {
 export interface Order {
   id: number;
   customerName: string;
-  tableNumber: number;
+  orderType: OrderType;
+  tableNumber: number | null;
   totalPrice: number;
   status: OrderStatus;
   createdAt: string;
