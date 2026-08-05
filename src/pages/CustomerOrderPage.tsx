@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllMenuItems } from "../api/menuApi";
 import { createOrder } from "../api/ordersApi";
-import type { MenuItem } from "../types";
+import type { MenuItem, OrderType } from "../types";
 import { theme } from "../theme";
-import { PageShell, TopBar, Card, Button, Input } from "../components/ui";
+import { PageShell, TopBar, Card, Button, Input, Badge } from "../components/ui";
+import { OrderTypeSelector } from "../components/OrderTypeSelector";
 
 export default function CustomerOrderPage() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -12,12 +13,13 @@ export default function CustomerOrderPage() {
   const [customerName, setCustomerName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const orderType: "dine_in" | "takeout" = location.state?.orderType || "dine_in";
   const tableFromQr = location.state?.tableNumber || "";
+  const [orderType, setOrderType] = useState<OrderType>(location.state?.orderType || "dine_in");
   const [tableNumber, setTableNumber] = useState(tableFromQr);
 
   useEffect(() => {
@@ -78,24 +80,58 @@ export default function CustomerOrderPage() {
     return sum + qty * item.price;
   }, 0);
 
+  // Inline "Change order type" view — items and name stay intact underneath
+  if (showTypeSelector) {
+    return (
+      <PageShell>
+        <TopBar
+          title="Change Order Type"
+          right={
+            <Button variant="secondary" onClick={() => setShowTypeSelector(false)}>
+              ← Back
+            </Button>
+          }
+        />
+        <OrderTypeSelector
+          onSelect={(type) => {
+            setOrderType(type);
+            setShowTypeSelector(false);
+          }}
+        />
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell>
       <TopBar title="Place an Order" right={<Button variant="secondary" onClick={() => navigate("/menu")}>← Back to Menu</Button>} />
 
       <div style={{ padding: "24px 16px", maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <Badge
+            text={orderType === "dine_in" ? "🍴 Dine In" : "🛍️ Take Out"}
+            color={theme.colors.accent}
+          />
+          <span
+            onClick={() => setShowTypeSelector(true)}
+            style={{
+              textDecoration: "underline",
+              cursor: "pointer",
+              color: theme.colors.textMuted,
+              fontSize: 13,
+            }}
+          >
+            Change
+          </span>
+        </div>
+
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
           <div style={{ flex: "1 1 220px" }}>
             <Input placeholder="Your Name" value={customerName} onChange={setCustomerName} />
           </div>
           {orderType === "dine_in" && (
             <div style={{ flex: "1 1 120px" }}>
-              <Input
-                placeholder="Table #"
-                type="number"
-                value={tableNumber}
-                onChange={setTableNumber}
-                style={tableFromQr ? { opacity: 0.7, pointerEvents: "none" } : undefined}
-              />
+              <Input placeholder="Table #" type="number" value={tableNumber} onChange={setTableNumber} />
             </div>
           )}
         </div>
@@ -136,4 +172,4 @@ export default function CustomerOrderPage() {
       </div>
     </PageShell>
   );
-} 
+}
