@@ -17,7 +17,7 @@ export default function RegisterPage() {
     setSuccess("");
     setLoading(true);
 
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://menu-mate-fawn.vercel.app/";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://menumateweb.runasp.net";
 
     try {
       const res = await fetch(`${baseUrl}/api/auth/register`, {
