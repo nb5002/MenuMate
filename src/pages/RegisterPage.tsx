@@ -23,7 +23,12 @@ export default function RegisterPage() {
       const res = await fetch(`${baseUrl}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, role, adminKey }),
+        body: JSON.stringify({ 
+          username, 
+          password, 
+          role: role.toLowerCase(), 
+          adminKey: role.toLowerCase() === "admin" ? adminKey : "" 
+        }),
       });
 
       const data = await res.json();
@@ -82,17 +87,20 @@ export default function RegisterPage() {
           </select>
         </div>
 
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "block", marginBottom: 6, fontSize: 13, color: theme.colors.textFaint }}>Admin Key</label>
-          <input
-            type="password"
-            required
-            placeholder="e.g., MenuMate2026!"
-            value={adminKey}
-            onChange={(e) => setAdminKey(e.target.value)}
-            style={{ width: "100%", padding: 10, borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.border}`, boxSizing: "border-box" }}
-          />
-        </div>
+        {/* Conditionally rendered: Only appears when 'Admin' is selected */}
+        {role.toLowerCase() === "admin" && (
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", marginBottom: 6, fontSize: 13, color: theme.colors.textFaint }}>Admin Secret Key</label>
+            <input
+              type="password"
+              required
+              placeholder="e.g., MenuMate2026!"
+              value={adminKey}
+              onChange={(e) => setAdminKey(e.target.value)}
+              style={{ width: "100%", padding: 10, borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.border}`, boxSizing: "border-box" }}
+            />
+          </div>
+        )}
 
         {error && <p style={{ color: theme.colors.danger, fontSize: 13, marginBottom: 16 }}>{error}</p>}
         {success && <p style={{ color: theme.colors.accent, fontSize: 13, marginBottom: 16 }}>{success}</p>}
