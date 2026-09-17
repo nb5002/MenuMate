@@ -42,6 +42,7 @@ export default function RegisterPage() {
         setError(data.message || "Registration failed.");
       }
     } catch (err) {
+        console.log(err);
       setError("Cannot connect to backend server.");
     } finally {
       setLoading(false);
