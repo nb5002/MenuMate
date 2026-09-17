@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import CustomerMenuPage from "./pages/CustomerMenuPage";
 import ItemDetailsPage from "./pages/ItemDetailsPage";
 import CustomerOrderPage from "./pages/CustomerOrderPage";
@@ -23,8 +24,9 @@ function App() {
       <Route path="/order" element={<CustomerOrderPage />} />
       <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
 
-      {/* Login */}
+      {/* Auth */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* Staff — protected */}
       <Route

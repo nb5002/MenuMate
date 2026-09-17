@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { login as loginApi } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
 import { theme } from "../theme";
@@ -176,7 +176,10 @@ export default function LoginPage() {
         <hr style={{ border: "none", borderTop: `1px solid ${theme.colors.border}`, margin: "24px 0" }} />
 
         <p style={{ textAlign: "center", color: theme.colors.textFaint, fontSize: 13, margin: 0 }}>
-          New to MenuMate? <span style={{ color: theme.colors.accent, cursor: "pointer" }}>Create account</span>
+         New to MenuMate?{" "}
+         <Link to="/register" style={{ color: theme.colors.accent, textDecoration: "none" }}>
+         Create account
+         </Link>
         </p>
       </form>
     </div>
