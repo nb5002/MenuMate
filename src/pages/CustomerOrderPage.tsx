@@ -139,6 +139,27 @@ export default function CustomerOrderPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
           {menuItems.map((item) => (
             <Card key={item.id}>
+               <div
+                style={{
+                  width: "100%",
+                  height: 120,
+                  borderRadius: theme.radius.sm,
+                  marginBottom: 10,
+                  background:
+                    item.imageUrl && item.imageUrl !== "string" && item.imageUrl !== "?"
+                      ? `url(${item.imageUrl}) center/cover`
+                      : theme.colors.bgInput,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: theme.colors.textFaint,
+                  fontSize: 12,
+                }}
+              >
+                {!(item.imageUrl && item.imageUrl !== "string" && item.imageUrl !== "?") && "No Image"}
+              </div>
+
+              
               <h3 style={{ margin: "0 0 8px", fontSize: 15 }}>{item.name}</h3>
               <p style={{ margin: "0 0 10px", color: theme.colors.accent, fontWeight: 600 }}>₱{item.price}</p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
