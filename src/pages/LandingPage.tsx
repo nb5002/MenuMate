@@ -1,6 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { theme } from "../theme";
 import logo from "../assets/logo.png";
+import bg from "../assets/menumate-bg.webp";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -10,8 +11,12 @@ export default function LandingPage() {
   return (
     <div
       style={{
-        minHeight: "90vh",
-        background: theme.colors.bg,
+       minHeight: "100svh",
+        backgroundColor: theme.colors.bg,
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
