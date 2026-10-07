@@ -141,21 +141,43 @@ export default function CustomerOrderPage() {
             <Card key={item.id}>
               <h3 style={{ margin: "0 0 8px", fontSize: 15 }}>{item.name}</h3>
               <p style={{ margin: "0 0 10px", color: theme.colors.accent, fontWeight: 600 }}>₱{item.price}</p>
-              <input
-                type="number"
-                min={0}
-                value={quantities[item.id] || ""}
-                onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
-                style={{
-                  width: "100%",
-                  padding: 8,
-                  borderRadius: theme.radius.sm,
-                  border: `1px solid ${theme.colors.border}`,
-                  background: theme.colors.bgInput,
-                  color: theme.colors.text,
-                  boxSizing: "border-box",
-                }}
-              />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                <button
+                  onClick={() => handleQuantityChange(item.id, Math.max(0, (quantities[item.id] || 0) - 1))}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: theme.radius.sm,
+                    border: `1px solid ${theme.colors.border}`,
+                    background: theme.colors.bgInput,
+                    color: theme.colors.text,
+                    cursor: "pointer",
+                    fontSize: 16,
+                 }}
+               >
+                 −
+                </button>
+
+                <span style={{ minWidth: 24, textAlign: "center", fontWeight: 600 }}>
+                  {quantities[item.id] || 0}
+                </span>
+
+                <button
+                  onClick={() => handleQuantityChange(item.id, (quantities[item.id] || 0) + 1)}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: theme.radius.sm,
+                    border: `1px solid ${theme.colors.border}`,
+                    background: theme.colors.bgInput,
+                    color: theme.colors.text,
+                    cursor: "pointer",
+                    fontSize: 16,
+                 }}
+               >
+                +
+               </button>
+              </div>
             </Card>
           ))}
         </div>
