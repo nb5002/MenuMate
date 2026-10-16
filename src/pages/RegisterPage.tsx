@@ -95,7 +95,7 @@ export default function RegisterPage() {
             <input
               type="password"
               required
-              placeholder="e.g., MenuMate2026!"
+              placeholder="Enter admin secret key"
               value={adminKey}
               onChange={(e) => setAdminKey(e.target.value)}
               style={{ width: "100%", padding: 10, borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.border}`, boxSizing: "border-box" }}
