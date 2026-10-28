@@ -13,6 +13,7 @@ const statusColor: Record<OrderStatus, string> = {
 
 export default function StaffDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
@@ -45,11 +46,44 @@ export default function StaffDashboardPage() {
     }
   };
 
+  // Derived list: orders stays the full list, this is only what we display
+  const filteredOrders =
+    statusFilter === "All"
+      ? orders
+      : orders.filter((order) => order.status === statusFilter);
+
   return (
     <div style={{ minHeight: "100vh", background: "#121212", padding: 24, color: "#fff" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center",
+          marginBottom: 24,
+        }}
+      >
         <h1>Staff Dashboard — Incoming Orders</h1>
-        <div>
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "All")}
+          style={{
+            padding: "6px 10px",
+            borderRadius: 6,
+            background: "#242424",
+            color: "#fff",
+            border: "1px solid #444",
+          }}
+        >
+          <option value="All">All</option>
+          {statusOptions.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+
+        <div style={{ justifySelf: "end" }}>
           <span style={{ marginRight: 12 }}>Logged in as <strong>{username}</strong> (staff)</span>
           <button onClick={logout} style={{ padding: "6px 12px", cursor: "pointer" }}>Log Out</button>
         </div>
@@ -59,9 +93,11 @@ export default function StaffDashboardPage() {
         <p>Loading orders...</p>
       ) : orders.length === 0 ? (
         <p style={{ color: "#888" }}>No orders yet.</p>
+      ) : filteredOrders.length === 0 ? (
+        <p style={{ color: "#888" }}>No {statusFilter.toLowerCase()} orders.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {orders.map((order) => (
+          {filteredOrders.map((order) => (
             <div
               key={order.id}
               style={{
