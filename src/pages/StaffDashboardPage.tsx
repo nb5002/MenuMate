@@ -68,7 +68,9 @@ export default function StaffDashboardPage() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "All")}
           style={{
-            padding: "10px 16px",
+            padding: "12px 18px",
+            fontSize: 18,
+            minWidth: 220,
             borderRadius: 8,
             background: "#242424",
             color: "#fff",
@@ -85,7 +87,7 @@ export default function StaffDashboardPage() {
 
         <div style={{ justifySelf: "end" }}>
           <span style={{ marginRight: 12 }}>Logged in as <strong>{username}</strong> (staff)</span>
-          <button onClick={logout} style={{ padding: "10px 16px", borderRadius: 8, background: "#242424", color: "#fff", border: "1px solid #444", cursor: "pointer" }}>Log Out</button>
+          <button onClick={logout} style={{ padding: "12px 18px", borderRadius: 8, background: "#242424", color: "#fff", border: "1px solid #444", cursor: "pointer" }}>Log Out</button>
         </div>
       </div>
 
@@ -137,7 +139,7 @@ export default function StaffDashboardPage() {
                     disabled={updatingId === order.id}
                     onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
                     style={{
-                      padding: "10px 16px",
+                      padding: "12px 18px",
                       borderRadius: 8,
                       background: "#242424",
                       color: "#fff",
