@@ -17,10 +17,29 @@ const emptyForm = {
   isAvailable: true,
 };
 
+type FormErrors = Partial<Record<"name" | "category" | "price" | "description", string>>;
+
+// Label with a red asterisk for required fields
+function Label({ text, required }: { text: string; required?: boolean }) {
+  return (
+    <label style={{ display: "block", fontSize: 13, color: "#bbb", marginBottom: 4 }}>
+      {text}
+      {required && <span style={{ color: "#ff6b6b" }}> *</span>}
+    </label>
+  );
+}
+
+// Small red message shown under a field
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p style={{ color: "#ff6b6b", fontSize: 12, margin: "0 0 10px" }}>{message}</p>;
+}
+
 export default function AdminMenuPage() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(emptyForm);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [editingId, setEditingId] = useState<number | null>(null);
   const [message, setMessage] = useState("");
 
@@ -39,10 +58,43 @@ export default function AdminMenuPage() {
 
   const handleChange = (field: keyof typeof form, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    // Clear this field's error as soon as the admin starts typing in it
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field as keyof FormErrors];
+      return next;
+    });
+  };
+
+  // Checks each required field and returns true only if everything is valid
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!form.name.trim()) {
+      newErrors.name = "Name is required.";
+    }
+    if (!form.category.trim()) {
+      newErrors.category = "Category is required.";
+    }
+    if (!form.price) {
+      newErrors.price = "Price is required.";
+    } else if (form.price < 0) {
+      newErrors.price = "Price must be greater than 0.";
+    }
+    if (!form.description.trim()) {
+      newErrors.description = "Description is required.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     setMessage("");
+
+    // Stop here if any field is invalid: no API call, no generic error
+    if (!validate()) return;
+
     try {
       if (editingId !== null) {
         await updateMenuItem(editingId, form);
@@ -52,6 +104,7 @@ export default function AdminMenuPage() {
         setMessage("Item added successfully.");
       }
       setForm(emptyForm);
+      setErrors({});
       setEditingId(null);
       loadItems();
     } catch (err) {
@@ -61,6 +114,8 @@ export default function AdminMenuPage() {
 
   const handleEdit = (item: MenuItem) => {
     setEditingId(item.id);
+    setErrors({});
+    setMessage("");
     setForm({
       name: item.name,
       category: item.category,
@@ -73,6 +128,7 @@ export default function AdminMenuPage() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
+    setErrors({});
     setForm(emptyForm);
   };
 
@@ -98,6 +154,12 @@ export default function AdminMenuPage() {
     boxSizing: "border-box" as const,
   };
 
+  // Same as inputStyle, but with a red border and less bottom margin when the field has an error
+  const fieldStyle = (field: keyof FormErrors) =>
+    errors[field]
+      ? { ...inputStyle, border: "1px solid #ff6b6b", marginBottom: 4 }
+      : inputStyle;
+
   return (
     <div style={{ minHeight: "100vh", background: "#121212", padding: 24, color: "#fff" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
@@ -113,37 +175,51 @@ export default function AdminMenuPage() {
         <div style={{ background: "#1e1e1e", padding: 20, borderRadius: 8, width: 320 }}>
           <h3>{editingId !== null ? "Edit Item" : "Add New Item"}</h3>
 
+          <Label text="Name" required />
           <input
             placeholder="Name"
             value={form.name}
             onChange={(e) => handleChange("name", e.target.value)}
-            style={inputStyle}
+            style={fieldStyle("name")}
           />
+          <FieldError message={errors.name} />
+
+          <Label text="Category" required />
           <input
             placeholder="Category (e.g. Meals, Drinks, Desserts)"
             value={form.category}
             onChange={(e) => handleChange("category", e.target.value)}
-            style={inputStyle}
+            style={fieldStyle("category")}
           />
+          <FieldError message={errors.category} />
+
+          <Label text="Price" required />
           <input
             placeholder="Price"
             type="number"
             value={form.price === 0 ? "" : form.price}
             onChange={(e) => handleChange("price", Number(e.target.value))}
-            style={inputStyle}
+            style={fieldStyle("price")}
           />
+          <FieldError message={errors.price} />
+
+          <Label text="Description" required />
           <textarea
             placeholder="Description"
             value={form.description}
             onChange={(e) => handleChange("description", e.target.value)}
-            style={{ ...inputStyle, minHeight: 70 }}
+            style={{ ...fieldStyle("description"), minHeight: 70 }}
           />
+          <FieldError message={errors.description} />
+
+          <Label text="Image URL (optional)" />
           <input
             placeholder="Image URL"
             value={form.imageUrl}
             onChange={(e) => handleChange("imageUrl", e.target.value)}
             style={inputStyle}
           />
+
           <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <input
               type="checkbox"
