@@ -14,6 +14,7 @@ export default function CustomerOrderPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [showTypeSelector, setShowTypeSelector] = useState(false);
+  const [showReview, setShowReview] = useState(false); // NEW: is the review pop-up open?
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,7 +35,13 @@ export default function CustomerOrderPage() {
     setQuantities((prev) => ({ ...prev, [menuItemId]: value }));
   };
 
-  const handleSubmit = async () => {
+  // NEW: only the items the customer actually picked (quantity above 0)
+  const selectedItems = menuItems
+    .filter((item) => (quantities[item.id] || 0) > 0)
+    .map((item) => ({ item, quantity: quantities[item.id] }));
+
+  // NEW: runs when "Submit Order" is clicked. Checks the form, then opens the review pop-up.
+  const handleReview = () => {
     setMessage("");
 
     if (!customerName.trim()) {
@@ -47,17 +54,20 @@ export default function CustomerOrderPage() {
       return;
     }
 
-    const items = Object.entries(quantities)
-      .filter(([, qty]) => qty > 0)
-      .map(([menuItemId, quantity]) => ({
-        menuItemId: Number(menuItemId),
-        quantity,
-      }));
-
-    if (items.length === 0) {
+    if (selectedItems.length === 0) {
       setMessage("Please select at least one item.");
       return;
     }
+
+    setShowReview(true);
+  };
+
+  // CHANGED: this used to be handleSubmit. It now runs only when "Confirm Order" is clicked.
+  const handleConfirm = async () => {
+    const items = selectedItems.map(({ item, quantity }) => ({
+      menuItemId: item.id,
+      quantity,
+    }));
 
     setSubmitting(true);
     try {
@@ -69,6 +79,7 @@ export default function CustomerOrderPage() {
       });
       navigate(`/order-confirmation/${response.data.orderId}`);
     } catch (err) {
+      setShowReview(false);
       setMessage("Failed to place order. Please try again.");
     } finally {
       setSubmitting(false);
@@ -209,10 +220,101 @@ export default function CustomerOrderPage() {
 
         {message && <p style={{ marginTop: 12, color: theme.colors.danger }}>{message}</p>}
 
-        <Button onClick={handleSubmit} disabled={submitting} style={{ marginTop: 16, width: "100%", maxWidth: 300 }}>
-          {submitting ? "Placing Order..." : "Submit Order"}
+        {/* CHANGED: the button now opens the review pop-up instead of sending the order */}
+        <Button onClick={handleReview} disabled={submitting} style={{ marginTop: 16, width: "100%", maxWidth: 300 }}>
+          Submit Order
         </Button>
       </div>
+
+      {/* NEW: the review pop-up */}
+      {showReview && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.75)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+            zIndex: 1000,
+          }}
+        >
+          <div style={{ width: "100%", maxWidth: 420, maxHeight: "90vh", overflowY: "auto" }}>
+            <Card style={{ textAlign: "left" }}>
+              <h2
+                style={{
+                  fontFamily: theme.font.heading,
+                  color: theme.colors.text,
+                  fontSize: 22,
+                  margin: "0 0 6px",
+                }}
+              >
+                Review Your Order
+              </h2>
+              <p style={{ margin: "0 0 16px", fontSize: 13, color: theme.colors.textMuted }}>
+                Please check your details before submitting.
+              </p>
+
+              <div style={{ fontSize: 14, marginBottom: 12, lineHeight: 1.8 }}>
+                <div>
+                  <span style={{ color: theme.colors.textMuted }}>Name: </span>
+                  <strong>{customerName}</strong>
+                </div>
+                <div>
+                  <span style={{ color: theme.colors.textMuted }}>Order type: </span>
+                  <strong>{orderType === "dine_in" ? "Dine In" : "Take Out"}</strong>
+                </div>
+                {orderType === "dine_in" && (
+                  <div>
+                    <span style={{ color: theme.colors.textMuted }}>Table: </span>
+                    <strong>{tableNumber}</strong>
+                  </div>
+                )}
+              </div>
+
+              <hr style={{ border: "none", borderTop: `1px solid ${theme.colors.border}`, margin: "12px 0" }} />
+
+              {selectedItems.map(({ item, quantity }) => (
+                <div
+                  key={item.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "8px 0",
+                    borderBottom: `1px solid ${theme.colors.border}`,
+                    fontSize: 14,
+                  }}
+                >
+                  <span>
+                    {quantity}x <span style={{ fontWeight: 600 }}>{item.name}</span>
+                  </span>
+                  <span>₱{(item.price * quantity).toFixed(2)}</span>
+                </div>
+              ))}
+
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 14 }}>
+                <strong>Total</strong>
+                <strong style={{ color: theme.colors.accent, fontSize: 18 }}>₱{total.toFixed(2)}</strong>
+              </div>
+
+              <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowReview(false)}
+                  disabled={submitting}
+                  style={{ flex: 1 }}
+                >
+                  Edit Order
+                </Button>
+                <Button onClick={handleConfirm} disabled={submitting} style={{ flex: 1 }}>
+                  {submitting ? "Placing Order..." : "Confirm Order"}
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }
