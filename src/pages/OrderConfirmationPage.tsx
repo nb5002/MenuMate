@@ -74,10 +74,14 @@ export default function OrderConfirmationPage() {
                 <p style={{ margin: 0, fontSize: 12, color: theme.colors.textMuted }}>Order Number</p>
                 <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: theme.colors.accent }}>#{order.id}</p>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <p style={{ margin: 0, fontSize: 12, color: theme.colors.textMuted }}>Table</p>
-                <p style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>{order.tableNumber}</p>
-              </div>
+
+              {/* Only show the Table block when the order has a table number (dine-in) */}
+              {order.tableNumber && (
+                <div style={{ textAlign: "right" }}>
+                  <p style={{ margin: 0, fontSize: 12, color: theme.colors.textMuted }}>Table</p>
+                  <p style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>{order.tableNumber}</p>
+                </div>
+              )}
             </div>
 
             <hr style={{ border: "none", borderTop: `1px solid ${theme.colors.border}`, margin: "16px 0" }} />
